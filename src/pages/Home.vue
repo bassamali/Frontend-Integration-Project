@@ -1,28 +1,31 @@
 <template>
-  <div class="container mt-5 text-center">
-    <!-- Header Section -->
-    <form class="header-box text-white p-5 rounded shadow mb-5">
-      <h1 class="display-4 mb-3 fw-bold">📦 Welcome to JSON API</h1>
-      <p class="lead mb-2">
+  <div class="container mt-5">
+    <!-- Header -->
+    <div class="text-center mb-5 p-5 rounded shadow text-white header-gradient">
+      <h1 class="display-4 fw-bold">📦 Welcome to JSON API</h1>
+      <p class="lead">
         Vue.js integration with real API data using
-        <a href="https://jsonplaceholder.typicode.com/" target="_blank">JSONPlaceholder</a>.
+        <a href="https://jsonplaceholder.typicode.com/" target="_blank" class="text-white text-decoration-underline">
+          JSONPlaceholder
+        </a>.
       </p>
-      <p class="mb-0 small text-light">Below is the summary of available resources:</p>
-    </form>
+      <p class="text-light small">Below is the summary of available resources:</p>
+    </div>
 
-    <!-- Cards Section -->
-    <div class="row justify-content-center mt-3">
+    <!-- Resource Cards -->
+    <div class="row">
       <div
-        class="col-sm-6 col-md-4 col-lg-3 mb-4"
-        v-for="(count, key) in counts"
+        class="col-md-6 col-lg-4 mb-4"
+        v-for="(resource, key) in resources"
         :key="key"
       >
-        <div class="card resource-card text-center p-4 h-100 border-0 shadow-sm">
-          <div class="resource-icon mb-3">
-            <i :class="getIcon(key)"></i>
+        <div class="p-4 rounded shadow-sm bg-white h-100 border-start border-5" :class="resource.color">
+          <div class="mb-2 d-flex align-items-center">
+            <i :class="resource.icon" class="fs-2 me-2"></i>
+            <h5 class="fw-semibold mb-0">{{ resource.title }}</h5>
           </div>
-          <h5 class="text-capitalize fw-semibold">{{ key }}</h5>
-          <p class="display-6 fw-bold text-primary">{{ count }}</p>
+          <p class="text-muted mb-1">{{ resource.count }} items</p>
+          <p class="small text-muted">{{ resource.description }}</p>
         </div>
       </div>
     </div>
@@ -30,90 +33,86 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
-import axios from 'axios'
+import { defineComponent } from 'vue';
+import axios from 'axios';
 
 export default defineComponent({
   name: 'Home',
   data() {
     return {
-      counts: {
-        posts: 0,
-        comments: 0,
-        albums: 0,
-        photos: 0,
-        todos: 0,
-        users: 0,
+      resources: {
+        posts: {
+          title: 'Posts',
+          icon: 'bi bi-file-earmark-text',
+          description: 'Blog posts with titles, content, and user associations',
+          count: 0,
+          link: 'https://jsonplaceholder.typicode.com/posts',
+          color: 'border-primary'
+        },
+        comments: {
+          title: 'Comments',
+          icon: 'bi bi-chat-dots',
+          description: 'User comments linked to specific posts',
+          count: 0,
+          link: 'https://jsonplaceholder.typicode.com/comments',
+          color: 'border-success'
+        },
+        albums: {
+          title: 'Albums',
+          icon: 'bi bi-collection',
+          description: 'Photo albums grouped by user',
+          count: 0,
+          link: 'https://jsonplaceholder.typicode.com/albums',
+          color: 'border-warning'
+        },
+        photos: {
+          title: 'Photos',
+          icon: 'bi bi-image',
+          description: 'Images tied to each album',
+          count: 0,
+          link: 'https://jsonplaceholder.typicode.com/photos',
+          color: 'border-danger'
+        },
+        todos: {
+          title: 'Todos',
+          icon: 'bi bi-check2-square',
+          description: 'User to-do list with completion status',
+          count: 0,
+          link: 'https://jsonplaceholder.typicode.com/todos',
+          color: 'border-info'
+        },
+        users: {
+          title: 'Users',
+          icon: 'bi bi-person-circle',
+          description: 'Basic information for each user',
+          count: 0,
+          link: 'https://jsonplaceholder.typicode.com/users',
+          color: 'border-dark'
+        }
       }
     };
   },
   mounted() {
-    const endpoints = Object.keys(this.counts);
-    endpoints.forEach(async (endpoint) => {
-      try {
-        const response = await axios.get(`https://jsonplaceholder.typicode.com/${endpoint}`);
-        this.counts[endpoint] = response.data.length;
-      } catch (err) {
-        console.error(`Failed to fetch ${endpoint}`, err);
-      }
-    });
-  },
-  methods: {
-    getIcon(resource) {
-      const icons = {
-        posts: 'bi bi-file-earmark-text',
-        comments: 'bi bi-chat-dots',
-        albums: 'bi bi-collection',
-        photos: 'bi bi-image',
-        todos: 'bi bi-check2-square',
-        users: 'bi bi-person-circle',
-      };
-      return icons[resource] || 'bi bi-box';
+    for (const key in this.resources) {
+      axios.get(`https://jsonplaceholder.typicode.com/${key}`)
+        .then(res => {
+          this.resources[key].count = res.data.length;
+        })
+        .catch(err => console.error(`Failed to fetch ${key}`, err));
     }
   }
 });
 </script>
 
 <style scoped>
-/* Gradient Header */
-.header-box {
-  background: linear-gradient(135deg, #0d6efd, #6610f2);
-  transition: box-shadow 0.3s ease;
-}
-.header-box:hover {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-/* Link Styling */
 a {
-  color: #ffe;
-  font-weight: 500;
-  text-decoration: underline;
+  text-decoration: none;
 }
 a:hover {
-  color: #fff;
+  text-decoration: underline;
 }
 
-/* Icon Styling */
-.resource-icon i {
-  font-size: 2.8rem;
-  color: #0d6efd;
-  transition: transform 0.3s ease, color 0.3s ease;
-  text-shadow: 1px 1px 3px rgba(13, 110, 253, 0.4);
-}
-.resource-card:hover .resource-icon i {
-  transform: scale(1.2);
-  color: #6610f2;
-}
-
-/* Card Design */
-.resource-card {
-  border-radius: 1rem;
-  background: #f8f9fa;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.resource-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+.header-gradient {
+  background: linear-gradient(135deg, #000000, #434343); /* Black to silver gradient */
 }
 </style>
